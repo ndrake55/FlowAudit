@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
     try {
-        const { name, email, password, companyName } = await req.json();
+        const { firstName, lastName, email, password, companyName } = await req.json();
 
-        if (!name || !email || !password || !companyName) {
+        if (!firstName || !lastName || !email || !password || !companyName) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
@@ -43,7 +43,9 @@ export async function POST(req: Request) {
 
             const user = await tx.user.create({
                 data: {
-                    name,
+                    firstName,
+                    lastName,
+                    name: `${firstName} ${lastName}`, // Keep name for NextAuth compatibility
                     email,
                     password: hashedPassword,
                     role: "ADMIN", // First user is Admin

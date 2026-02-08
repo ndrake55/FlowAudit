@@ -15,7 +15,8 @@ export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false);
 
     const [formData, setFormData] = useState({
-        name: "",
+        firstName: "",
+        lastName: "",
         email: "",
         password: "",
         companyName: "",
@@ -72,9 +73,15 @@ export default function RegisterPage() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Full Name</Label>
-                            <Input id="name" name="name" required value={formData.name} onChange={handleChange} placeholder="John Doe" />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="firstName">First Name</Label>
+                                <Input id="firstName" name="firstName" required value={formData.firstName} onChange={handleChange} placeholder="John" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="lastName">Last Name</Label>
+                                <Input id="lastName" name="lastName" required value={formData.lastName} onChange={handleChange} placeholder="Doe" />
+                            </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
