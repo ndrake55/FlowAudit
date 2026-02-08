@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { calculateAudit, saveAuditResult } from "@/lib/audit-engine";
 import { revalidatePath } from "next/cache";
 import { s3Client } from "@/lib/aws/s3";
@@ -265,6 +266,8 @@ export async function getRecentAudits(count: number = 20) {
 export async function getDeals() {
     const user = await getOrCreateUser();
 
+    if (!user.tenantId) return [];
+
     const locations = await prisma.location.findMany({
         where: { tenantId: user.tenantId },
         include: {
@@ -299,11 +302,15 @@ export async function createFullAudit(data: {
 }) {
     const user = await getOrCreateUser();
 
+    if (!user.tenantId) {
+        throw new Error("User does not have a tenant");
+    }
+
     return await prisma.$transaction(async (tx) => {
         // 1. Create Location
         const location = await tx.location.create({
             data: {
-                tenantId: user.tenantId,
+                tenantId: user.tenantId!, // Asserted because of check above
                 name: data.name,
                 askingPrice: data.askingPrice,
                 claimedMonthlyRevenue: data.claimedMonthlyRevenue,
@@ -315,7 +322,7 @@ export async function createFullAudit(data: {
             for (let i = 0; i < item.count; i++) {
                 await tx.machine.create({
                     data: {
-                        tenantId: user.tenantId,
+                        tenantId: user.tenantId!,
                         locationId: location.id,
                         machineDefinitionId: item.machineDefinitionId,
                         vendPrice: item.vendPrice,
@@ -328,7 +335,7 @@ export async function createFullAudit(data: {
         if (data.s3Key) {
             await tx.utilityBill.create({
                 data: {
-                    tenantId: user.tenantId,
+                    tenantId: user.tenantId!,
                     locationId: location.id,
                     startDate: new Date(),
                     endDate: new Date(),
@@ -344,14 +351,16 @@ export async function createFullAudit(data: {
 }
 
 export async function deleteAudit(locationId: string) {
-    const { userId } = await auth();
+    const session = await getServerSession(authOptions);
 
-    if (!userId) {
+    if (!session || !session.user || !session.user.id) {
         throw new Error("Unauthorized");
     }
 
+    const userId = session.user.id;
+
     const user = await prisma.user.findUnique({
-        where: { clerkUserId: userId }
+        where: { id: userId }
     });
 
     if (!user) {

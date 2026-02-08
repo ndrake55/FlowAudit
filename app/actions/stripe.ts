@@ -1,6 +1,7 @@
 'use server'
 
-import { auth, currentUser } from "@clerk/nextjs/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { stripe } from "@/lib/stripe"
 import { redirect } from "next/navigation"
@@ -11,16 +12,18 @@ export async function createCheckoutSession(
     mode: "payment" | "subscription" = "subscription",
     metadata: { auditReportId?: string } = {}
 ) {
-    const { userId } = await auth()
-    const user = await currentUser()
+    const session = await getServerSession(authOptions)
 
-    if (!userId || !user) {
-        redirect("/sign-in")
+    if (!session || !session.user || !session.user.id || !session.user.email) {
+        redirect("/login")
     }
+
+    const userId = session.user.id
+    const userEmail = session.user.email
 
     // 1. Get the user from Prisma to check for existing Stripe Customer ID
     const dbUser = await prisma.user.findUnique({
-        where: { clerkUserId: userId },
+        where: { id: userId },
     })
 
     if (!dbUser) {
@@ -32,7 +35,7 @@ export async function createCheckoutSession(
     // 2. If no customer ID, create one in Stripe and save to Prisma
     if (!stripeCustomerId) {
         const customer = await stripe.customers.create({
-            email: user.emailAddresses[0].emailAddress,
+            email: userEmail,
             metadata: {
                 userId: dbUser.id,
             },
@@ -46,7 +49,7 @@ export async function createCheckoutSession(
     }
 
     // 3. Create Checkout Session
-    const session = await stripe.checkout.sessions.create({
+    const stripeSession = await stripe.checkout.sessions.create({
         customer: stripeCustomerId,
         line_items: [
             {
@@ -65,22 +68,24 @@ export async function createCheckoutSession(
     })
 
     // 4. Redirect user
-    if (session.url) {
-        redirect(session.url)
+    if (stripeSession.url) {
+        redirect(stripeSession.url)
     }
 }
 
 export async function createOneTimeAuditCheckout(auditReportId: string) {
-    const { userId } = await auth()
-    const user = await currentUser()
+    const session = await getServerSession(authOptions)
 
-    if (!userId || !user) {
-        redirect("/sign-in")
+    if (!session || !session.user || !session.user.id || !session.user.email) {
+        redirect("/login")
     }
+
+    const userId = session.user.id
+    const userEmail = session.user.email
 
     // 1. Get/Create Customer
     const dbUser = await prisma.user.findUnique({
-        where: { clerkUserId: userId },
+        where: { id: userId },
     })
 
     if (!dbUser) throw new Error("User not found")
@@ -88,7 +93,7 @@ export async function createOneTimeAuditCheckout(auditReportId: string) {
     let stripeCustomerId = dbUser.stripeCustomerId
     if (!stripeCustomerId) {
         const customer = await stripe.customers.create({
-            email: user.emailAddresses[0].emailAddress,
+            email: userEmail,
             metadata: { userId: dbUser.id },
         })
         stripeCustomerId = customer.id
@@ -101,7 +106,7 @@ export async function createOneTimeAuditCheckout(auditReportId: string) {
     // 2. Create Checkout Session for One-Time Payment
     const PRICE_ID = STRIPE_PRICES.single_deal;
 
-    const session = await stripe.checkout.sessions.create({
+    const stripeSession = await stripe.checkout.sessions.create({
         customer: stripeCustomerId,
         line_items: [
             {
@@ -120,41 +125,43 @@ export async function createOneTimeAuditCheckout(auditReportId: string) {
         },
     })
 
-    if (session.url) {
-        redirect(session.url)
+    if (stripeSession.url) {
+        redirect(stripeSession.url)
     }
 }
 
 export async function createCustomerPortalSession() {
-    const { userId } = await auth()
+    const session = await getServerSession(authOptions)
 
-    if (!userId) {
-        redirect("/sign-in")
+    if (!session || !session.user || !session.user.id) {
+        redirect("/login")
     }
 
+    const userId = session.user.id
+
     const dbUser = await prisma.user.findUnique({
-        where: { clerkUserId: userId },
+        where: { id: userId },
     })
 
     if (!dbUser || !dbUser.stripeCustomerId) {
         throw new Error("User not found or no subscription")
     }
 
-    const session = await stripe.billingPortal.sessions.create({
+    const portalSession = await stripe.billingPortal.sessions.create({
         customer: dbUser.stripeCustomerId,
         return_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard`,
     })
 
-    if (session.url) {
-        redirect(session.url)
+    if (portalSession.url) {
+        redirect(portalSession.url)
     }
 }
 
 export async function createSubscriptionCheckout(auditReportId?: string) {
-    const { userId } = await auth()
+    const session = await getServerSession(authOptions)
 
-    if (!userId) {
-        redirect("/sign-in")
+    if (!session || !session.user || !session.user.id) {
+        redirect("/login")
     }
 
     // Call the generic function with the specific price ID
@@ -162,24 +169,24 @@ export async function createSubscriptionCheckout(auditReportId?: string) {
 }
 
 export async function syncStripeStatus(sessionId: string) {
-    const { userId } = await auth();
-    if (!userId) return { success: false, error: "Unauthorized" };
+    const session = await getServerSession(authOptions)
+    if (!session || !session.user) return { success: false, error: "Unauthorized" };
 
     try {
-        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
 
-        if (session.payment_status === 'paid' && session.metadata?.auditReportId) {
+        if (stripeSession.payment_status === 'paid' && stripeSession.metadata?.auditReportId) {
             // Check if already paid to avoid redundant DB writes
             const report = await prisma.auditReport.findUnique({
-                where: { id: session.metadata.auditReportId }
+                where: { id: stripeSession.metadata.auditReportId }
             });
 
             if (report && report.paymentStatus !== 'PAID') {
                 await prisma.auditReport.update({
-                    where: { id: session.metadata.auditReportId },
+                    where: { id: stripeSession.metadata.auditReportId },
                     data: {
                         paymentStatus: 'PAID',
-                        stripeSessionId: session.id
+                        stripeSessionId: stripeSession.id
                     }
                 });
                 return { success: true, message: "Payment verified" };
@@ -194,14 +201,16 @@ export async function syncStripeStatus(sessionId: string) {
 }
 
 export async function getUserInvoices() {
-    const { userId } = await auth()
+    const session = await getServerSession(authOptions)
 
-    if (!userId) {
+    if (!session || !session.user || !session.user.id) {
         throw new Error("Unauthorized")
     }
 
+    const userId = session.user.id
+
     const dbUser = await prisma.user.findUnique({
-        where: { clerkUserId: userId },
+        where: { id: userId },
     })
 
     if (!dbUser || !dbUser.stripeCustomerId) {

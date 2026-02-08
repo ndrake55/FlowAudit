@@ -1,14 +1,17 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { auth } from '@clerk/nextjs/server';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { revalidatePath } from 'next/cache';
 
 export async function getMachines() {
-    const { userId } = await auth();
-    if (!userId) return [];
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) return [];
 
-    const user = await prisma.user.findUnique({ where: { clerkUserId: userId } });
+    const userId = session.user.id;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) return [];
 
     return prisma.machine.findMany({
@@ -28,10 +31,12 @@ export async function getMachineDefinitions() {
 }
 
 export async function getLocations() {
-    const { userId } = await auth();
-    if (!userId) return [];
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) return [];
 
-    const user = await prisma.user.findUnique({ where: { clerkUserId: userId } });
+    const userId = session.user.id;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) return [];
 
     return prisma.location.findMany({
@@ -41,10 +46,12 @@ export async function getLocations() {
 }
 
 export async function createMachine(locationId: string, machineDefinitionId: string) {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) throw new Error("Unauthorized");
 
-    const user = await prisma.user.findUnique({ where: { clerkUserId: userId } });
+    const userId = session.user.id;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error("User not found");
 
     await prisma.machine.create({
@@ -68,13 +75,15 @@ export async function bulkAddMachines(
     quantity: number,
     startId: number
 ) {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) throw new Error("Unauthorized");
+
+    const userId = session.user.id;
 
     // Validate quantity
     if (quantity <= 0) throw new Error("Quantity must be positive");
 
-    const user = await prisma.user.findUnique({ where: { clerkUserId: userId } });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error("User not found");
 
     // Verify location belongs to user's tenant

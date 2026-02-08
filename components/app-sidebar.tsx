@@ -23,7 +23,7 @@ import {
     SidebarHeader,
     SidebarFooter
 } from "@/components/ui/sidebar"
-import { ClerkUserButton } from "./ClerkUserButton"
+import { UserAccountNav } from "./user-account-nav"
 
 // Menu items.
 const items = [
@@ -70,7 +70,7 @@ export function AppSidebar() {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter className="p-4">
-                <ClerkUserButton />
+                <UserAccountNav />
             </SidebarFooter>
         </Sidebar>
     )

@@ -1,51 +1,27 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { revalidatePath } from 'next/cache';
 
 export async function createTestLocation() {
-    const { userId } = await auth();
+    const session = await getServerSession(authOptions);
 
-    if (!userId) {
+    if (!session || !session.user || !session.user.id) {
         throw new Error("Unauthorized");
     }
 
-    let user = await prisma.user.findUnique({
-        where: { clerkUserId: userId },
+    const userId = session.user.id;
+
+    // Use id instead of clerkUserId
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
         include: { tenant: true }
     });
 
     if (!user) {
-        // Just-in-time provisioning for dev/handling missing webhooks
-        const clerkUser = await currentUser();
-        if (!clerkUser) {
-            throw new Error("Could not fetch Clerk user details");
-        }
-
-        const email = clerkUser.emailAddresses[0]?.emailAddress;
-        if (!email) throw new Error("No email found for user");
-
-        // Transaction: Create Tenant -> Create User
-        // Note: Using uuid for tenant slug for simplicity
-        const newTenant = await prisma.tenant.create({
-            data: {
-                name: `${clerkUser.firstName || 'User'}'s Organization`,
-                slug: `tenant-${Date.now()}`,
-            }
-        });
-
-        user = await prisma.user.create({
-            data: {
-                clerkUserId: userId,
-                email: email,
-                firstName: clerkUser.firstName,
-                lastName: clerkUser.lastName,
-                tenantId: newTenant.id,
-                role: 'ADMIN'
-            },
-            include: { tenant: true }
-        });
+        throw new Error("User not found");
     }
 
     // Check if location already exists to avoid duplicates if clicked multiple times rapidly
