@@ -2,6 +2,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Separator } from "@/components/ui/separator"
 import { cookies } from "next/headers"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 
 export default async function DashboardLayout({
     children,
@@ -10,10 +12,11 @@ export default async function DashboardLayout({
 }) {
     const cookieStore = await cookies()
     const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
+    const session = await getServerSession(authOptions)
 
     return (
         <SidebarProvider defaultOpen={true}>
-            <AppSidebar />
+            <AppSidebar user={session?.user} />
             <main className="w-full">
                 <div className="flex items-center gap-2 border-b p-4">
                     <SidebarTrigger />
