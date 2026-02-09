@@ -3,6 +3,10 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma"; // Assuming prisma client is exported from here or similar
 import Stripe from "stripe";
+import { sendEmail } from "@/lib/email";
+import { emailTemplates } from "@/lib/email/templates";
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://flowaudit.net";
 
 export async function POST(req: Request) {
     const body = await req.text();
@@ -98,6 +102,18 @@ export async function POST(req: Request) {
                     stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
                 },
             })
+
+            // Send Email Notification
+            if (invoice.customer_email) {
+                await sendEmail({
+                    to: invoice.customer_email,
+                    subject: "Payment Successful - FlowAudit Subscription",
+                    html: emailTemplates.subscriptionPaid(`${APP_URL}/dashboard/settings`)
+                });
+            } else {
+                // Try to fetch user from DB to get email?
+                // For now, rely on Stripe's customer_email.
+            }
         }
     }
 

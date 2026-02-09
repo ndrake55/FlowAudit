@@ -10,6 +10,7 @@ const envSchema = z.object({
   GOOGLE_GEMINI_API_KEY: z.string().min(1),
   RENTCAST_API_KEY: z.string().optional(), // Made optional to prevent crash if not yet set
   CENSUS_API_KEY: z.string().optional(),   // Made optional to prevent crash if not yet set
+  NEXT_PUBLIC_APP_URL: z.string().url().optional().default("http://localhost:3000"),
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),

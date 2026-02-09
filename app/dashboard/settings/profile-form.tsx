@@ -6,37 +6,40 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { updateUserProfile } from "@/app/actions/user"
+import { updateUserProfile, deleteUserAccount } from "@/app/actions/user"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface ProfileFormProps {
     user: {
         name: string | null
         email: string | null
         phoneNumber: string | null
-        jobTitle: string | null
-        location: string | null
-        bio: string | null
-        website: string | null
     }
 }
 
 export function ProfileForm({ user }: ProfileFormProps) {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
     const [formData, setFormData] = useState({
         name: user.name || "",
         phoneNumber: user.phoneNumber || "",
-        jobTitle: user.jobTitle || "",
-        location: user.location || "",
-        bio: user.bio || "",
-        website: user.website || "",
     })
 
     // Separate email as it is read-only for now
     const email = user.email || ""
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
@@ -45,7 +48,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
         setIsLoading(true)
 
         try {
-            // @ts-ignore
             const result = await updateUserProfile(formData)
             if (result.success) {
                 toast.success("Profile updated successfully")
@@ -60,60 +62,87 @@ export function ProfileForm({ user }: ProfileFormProps) {
         }
     }
 
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true)
+        try {
+            const result = await deleteUserAccount()
+            if (result.success) {
+                toast.success("Account deleted successfully")
+                router.push("/login") // Or wherever you want to redirect
+            } else {
+                toast.error(result.error || "Failed to delete account")
+                setIsDeleting(false)
+            }
+        } catch (error) {
+            toast.error("An error occurred")
+            setIsDeleting(false)
+        }
+    }
+
     return (
-        <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-                <div className="p-6 pb-4">
-                    <h3 className="text-xl font-semibold leading-none tracking-tight">Personal Information</h3>
-                </div>
-                <div className="p-6 pt-0 grid gap-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Full Name</Label>
-                            <Input id="name" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input id="email" value={email} disabled className="bg-muted" />
-                            <p className="text-[0.8rem] text-muted-foreground">Email cannot be changed.</p>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="phoneNumber">Phone Number</Label>
-                            <Input id="phoneNumber" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="555-0123" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="jobTitle">Job Title</Label>
-                            <Input id="jobTitle" name="jobTitle" value={formData.jobTitle} onChange={handleChange} placeholder="e.g. Senior Developer" />
-                        </div>
+        <div className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+                    <div className="p-6 pb-4">
+                        <h3 className="text-xl font-semibold leading-none tracking-tight">Personal Information</h3>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="location">Location</Label>
-                        <Input id="location" name="location" value={formData.location} onChange={handleChange} placeholder="e.g. San Francisco, CA" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="bio">Bio</Label>
-                        <Textarea id="bio" name="bio" value={formData.bio} onChange={handleChange} placeholder="Tell us a little about yourself..." className="resize-none min-h-[100px]" />
+                    <div className="p-6 pt-0 grid gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Full Name</Label>
+                                <Input id="name" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" value={email} disabled className="bg-muted" />
+                                <p className="text-[0.8rem] text-muted-foreground">Email cannot be changed.</p>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phoneNumber">Phone Number</Label>
+                                <Input id="phoneNumber" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="555-0123" />
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-                <div className="p-6 pb-4">
-                    <h3 className="text-xl font-semibold leading-none tracking-tight">Social Profiles</h3>
+                <div className="flex justify-end">
+                    <Button type="submit" disabled={isLoading}>
+                        {isLoading ? "Saving..." : "Save Changes"}
+                    </Button>
                 </div>
-                <div className="p-6 pt-0">
-                    <div className="space-y-2">
-                        <Label htmlFor="website">Website</Label>
-                        <Input id="website" name="website" value={formData.website} onChange={handleChange} placeholder="https://example.com" />
-                    </div>
-                </div>
-            </div>
+            </form>
 
-            <div className="flex justify-end">
-                <Button type="submit" disabled={isLoading}>
-                    {isLoading ? "Saving..." : "Save Changes"}
-                </Button>
+            <div className="rounded-lg border border-red-200 bg-red-50 text-red-900 shadow-sm">
+                <div className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h3 className="text-lg font-semibold text-red-900">Delete Account</h3>
+                        <p className="text-sm text-red-700 mt-1">
+                            Permanently delete your account and all of your content. This action cannot be undone.
+                        </p>
+                    </div>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" disabled={isDeleting}>
+                                Delete Account
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete your account and remove your data from our servers.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDeleteAccount} className="bg-red-600 hover:bg-red-700">
+                                    {isDeleting ? "Deleting..." : "Delete Account"}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </div>
             </div>
-        </form>
+        </div>
     )
 }

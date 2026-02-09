@@ -10,6 +10,8 @@ import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { processBill } from "@/lib/gemini";
 import { env } from "@/lib/env";
 import { getOrCreateUser } from "@/app/actions/user";
+import { sendEmail } from "@/lib/email";
+import { emailTemplates } from "@/lib/email/templates";
 
 /**
  * Submits cycle counts for a set of machines for a specific utility bill.
@@ -86,6 +88,20 @@ export async function runAudit(utilityBillId: string) {
         revalidatePath(`/dashboard/bills/${utilityBillId}`);
     } catch (e) {
         console.warn('Revalidate failed', e);
+    }
+
+    try {
+        const user = await getOrCreateUser();
+        if (user && user.email) {
+            const reportLink = `${env.NEXT_PUBLIC_APP_URL}/dashboard/audit-report/${utilityBillId}`;
+            await sendEmail({
+                to: user.email,
+                subject: "Your FlowAudit Report is Ready",
+                html: emailTemplates.newReportReady(reportLink)
+            });
+        }
+    } catch (e) {
+        console.warn('Failed to send report email', e);
     }
 
     return result;

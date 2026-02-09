@@ -9,7 +9,8 @@ import {
     Droplets,
     FileText,
     LayoutDashboard,
-    CreditCard
+    CreditCard,
+    LifeBuoy
 } from "lucide-react"
 import {
     Sidebar,
@@ -37,8 +38,11 @@ const items = [
         url: "/dashboard/invoices",
         icon: CreditCard,
     },
-    // Settings moved to footer
-
+    {
+        title: "Support",
+        url: "/dashboard/support",
+        icon: LifeBuoy,
+    },
 ]
 
 export function AppSidebar() {

@@ -45,6 +45,7 @@ model User {
 
   accounts      Account[]
   sessions      Session[]
+  supportTickets SupportTicket[]
 
   // Stripe & Billing Nexus
   stripeCustomerId       String?   @unique
@@ -257,5 +258,27 @@ model AuditReport {
   paymentStatus   PaymentStatus @default(UNPAID)
   stripeSessionId String?
 
+  createdAt DateTime @default(now())
+}
+
+model SupportTicket {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  message   String   @db.Text
+  status    String   @default("OPEN") // OPEN, CLOSED, IN_PROGRESS
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  replies   SupportReply[]
+}
+
+model SupportReply {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sender    String   // USER, ADMIN
+  message   String   @db.Text
   createdAt DateTime @default(now())
 }
