@@ -5,7 +5,7 @@ import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-export const dynamic = "force-dynamic";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
