@@ -65,7 +65,7 @@ export default function Home() {
                 </p>
               </div>
               <div className="space-x-4 pt-4">
-                <Link href="/sign-up">
+                <Link href="/register">
                   <Button size="lg" className="h-14 px-8 text-lg bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/20">
                     Start Forensic Audit
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -321,7 +321,7 @@ export default function Home() {
               Join smart investors who use FlowAudit to verify every Single laundromat purchase.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/sign-up">
+              <Link href="/register">
                 <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 h-14 px-8 text-lg w-full sm:w-auto">
                   Get Started for Free
                 </Button>
