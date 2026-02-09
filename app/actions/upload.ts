@@ -3,16 +3,20 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "@/lib/aws/s3";
 import { env } from "@/lib/env";
-import { auth } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
 import { processBill, ExtractedData } from "@/lib/gemini";
 
 export async function uploadAuditFiles(formData: FormData) {
-    const { userId } = await auth();
-    if (!userId) {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user || !session.user.id) {
         throw new Error("Unauthorized");
     }
+
+    const userId = session.user.id;
 
     const files = formData.getAll("files") as File[];
     const results: { key: string; analysis: ExtractedData | null }[] = [];

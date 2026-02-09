@@ -43,6 +43,10 @@ export async function createForensicAudit(
 ) {
     const user = await getOrCreateUser();
 
+    if (!user.tenantId) {
+        throw new Error("User has no tenant assigned");
+    }
+
     // 1. Create Location (Deal)
     const location = await prisma.location.create({
         data: {

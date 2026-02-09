@@ -20,8 +20,8 @@ export async function createTestLocation() {
         include: { tenant: true }
     });
 
-    if (!user) {
-        throw new Error("User not found");
+    if (!user || !user.tenantId) {
+        throw new Error("User not found or has no tenant");
     }
 
     // Check if location already exists to avoid duplicates if clicked multiple times rapidly

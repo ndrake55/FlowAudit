@@ -12,7 +12,7 @@ export async function getMachines() {
     const userId = session.user.id;
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) return [];
+    if (!user || !user.tenantId) return [];
 
     return prisma.machine.findMany({
         where: { tenantId: user.tenantId },
@@ -37,7 +37,7 @@ export async function getLocations() {
     const userId = session.user.id;
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) return [];
+    if (!user || !user.tenantId) return [];
 
     return prisma.location.findMany({
         where: { tenantId: user.tenantId },
@@ -52,7 +52,7 @@ export async function createMachine(locationId: string, machineDefinitionId: str
     const userId = session.user.id;
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new Error("User not found");
+    if (!user || !user.tenantId) throw new Error("User has no tenant assigned");
 
     await prisma.machine.create({
         data: {
@@ -84,13 +84,15 @@ export async function bulkAddMachines(
     if (quantity <= 0) throw new Error("Quantity must be positive");
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new Error("User not found");
+    if (!user || !user.tenantId) throw new Error("User has no tenant assigned");
+
+    const tenantId = user.tenantId;
 
     // Verify location belongs to user's tenant
     const location = await prisma.location.findFirst({
         where: {
             id: locationId,
-            tenantId: user.tenantId
+            tenantId
         }
     });
 
@@ -101,7 +103,7 @@ export async function bulkAddMachines(
         for (let i = 0; i < quantity; i++) {
             await tx.machine.create({
                 data: {
-                    tenantId: user.tenantId,
+                    tenantId,
                     locationId,
                     machineDefinitionId,
                 }

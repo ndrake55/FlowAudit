@@ -1,15 +1,18 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { auth } from '@clerk/nextjs/server';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { revalidatePath } from 'next/cache';
 
 export async function getUtilityBills() {
-    const { userId } = await auth();
-    if (!userId) return [];
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) return [];
 
-    const user = await prisma.user.findUnique({ where: { clerkUserId: userId } });
-    if (!user) return [];
+    const userId = session.user.id;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.tenantId) return [];
 
     return prisma.utilityBill.findMany({
         where: { tenantId: user.tenantId },
@@ -30,11 +33,13 @@ export interface CreateBillData {
 }
 
 export async function createUtilityBill(data: CreateBillData) {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) throw new Error("Unauthorized");
 
-    const user = await prisma.user.findUnique({ where: { clerkUserId: userId } });
-    if (!user) throw new Error("User not found");
+    const userId = session.user.id;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.tenantId) throw new Error("User has no tenant assigned");
 
     await prisma.utilityBill.create({
         data: {

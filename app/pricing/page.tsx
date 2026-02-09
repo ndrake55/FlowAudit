@@ -3,10 +3,14 @@ import { Button } from "@/components/ui/button";
 
 import { Droplets } from "lucide-react";
 import { STRIPE_PRICES } from "@/lib/stripe-constants";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { UserAccountNav } from "@/components/user-account-nav";
 import { PricingCard } from "@/components/pricing-card";
 
-export default function PricingPage() {
+export default async function PricingPage() {
+    const session = await getServerSession(authOptions);
+
     return (
         <div className="flex flex-col min-h-screen">
             {/* Header */}
@@ -16,26 +20,29 @@ export default function PricingPage() {
                     FlowAudit
                 </Link>
                 <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
-                    <SignedOut>
-                        <Link className="text-sm font-medium hover:underline underline-offset-4" href="/#features">
-                            Features
-                        </Link>
-                        <Link className="text-sm font-medium hover:underline underline-offset-4" href="/pricing">
-                            Pricing
-                        </Link>
-                        <SignInButton mode="modal">
-                            <Button variant="ghost" size="sm">Log In</Button>
-                        </SignInButton>
-                        <Link href="/sign-up">
-                            <Button size="sm">Get Started</Button>
-                        </Link>
-                    </SignedOut>
-                    <SignedIn>
-                        <Button asChild size="sm" variant="outline">
-                            <Link href="/dashboard">Dashboard</Link>
-                        </Button>
-                        <UserButton />
-                    </SignedIn>
+                    {!session ? (
+                        <>
+                            <Link className="text-sm font-medium hover:underline underline-offset-4" href="/#features">
+                                Features
+                            </Link>
+                            <Link className="text-sm font-medium hover:underline underline-offset-4" href="/pricing">
+                                Pricing
+                            </Link>
+                            <Link href="/login">
+                                <Button variant="ghost" size="sm">Log In</Button>
+                            </Link>
+                            <Link href="/register">
+                                <Button size="sm">Get Started</Button>
+                            </Link>
+                        </>
+                    ) : (
+                        <>
+                            <Button asChild size="sm" variant="outline">
+                                <Link href="/dashboard">Dashboard</Link>
+                            </Button>
+                            <UserAccountNav />
+                        </>
+                    )}
                 </nav>
             </header>
 

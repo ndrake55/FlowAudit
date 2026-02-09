@@ -1,4 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,11 +22,13 @@ interface PageProps {
 export default async function AuditResultPage(props: PageProps) {
     const params = await props.params;
     const { id } = params;
-    const { userId } = await auth();
+    const session = await getServerSession(authOptions);
 
-    if (!userId) {
-        redirect("/sign-in");
+    if (!session || !session.user || !session.user.id) {
+        redirect("/login");
     }
+
+    const userId = session.user.id;
 
     if (!id) {
         return <div>Invalid Audit ID</div>;
@@ -59,7 +62,7 @@ export default async function AuditResultPage(props: PageProps) {
                 }
             }),
             prisma.user.findUnique({
-                where: { clerkUserId: userId }
+                where: { id: userId }
             })
         ]);
         console.log("Fetch success. Audit found:", !!audit);

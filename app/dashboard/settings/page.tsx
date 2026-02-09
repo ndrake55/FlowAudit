@@ -1,4 +1,5 @@
-import { auth, currentUser } from "@clerk/nextjs/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,15 +7,14 @@ import { createCustomerPortalSession } from "@/app/actions/stripe"
 import { redirect } from "next/navigation"
 
 export default async function SettingsPage() {
-    const { userId } = await auth()
-    const user = await currentUser()
+    const session = await getServerSession(authOptions)
 
-    if (!userId) {
-        redirect("/sign-in")
+    if (!session || !session.user || !session.user.id) {
+        redirect("/login")
     }
 
     const dbUser = await prisma.user.findUnique({
-        where: { clerkUserId: userId },
+        where: { id: session.user.id },
     })
 
     if (!dbUser) {

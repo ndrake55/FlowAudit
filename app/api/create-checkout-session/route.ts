@@ -1,16 +1,19 @@
-import { auth, currentUser } from "@clerk/nextjs/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { stripe } from "@/lib/stripe"
 import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
     try {
-        const { userId } = await auth()
-        const user = await currentUser()
+        const session = await getServerSession(authOptions)
 
-        if (!userId || !user) {
+        if (!session || !session.user || !session.user.id || !session.user.email) {
             return new NextResponse("Unauthorized", { status: 401 })
         }
+
+        const userId = session.user.id
+        const userEmail = session.user.email
 
         const body = await req.json()
         const { priceId, mode } = body
@@ -21,7 +24,7 @@ export async function POST(req: Request) {
 
         // 1. Get the user from Prisma to check for existing Stripe Customer ID
         const dbUser = await prisma.user.findUnique({
-            where: { clerkUserId: userId },
+            where: { id: userId },
         })
 
         if (!dbUser) {
@@ -33,7 +36,7 @@ export async function POST(req: Request) {
         // 2. If no customer ID, create one in Stripe and save to Prisma
         if (!stripeCustomerId) {
             const customer = await stripe.customers.create({
-                email: user.emailAddresses[0].emailAddress,
+                email: userEmail,
                 metadata: {
                     userId: dbUser.id,
                 },
@@ -47,7 +50,7 @@ export async function POST(req: Request) {
         }
 
         // 3. Create Checkout Session
-        const session = await stripe.checkout.sessions.create({
+        const stripeSession = await stripe.checkout.sessions.create({
             customer: stripeCustomerId,
             line_items: [
                 {
@@ -63,7 +66,7 @@ export async function POST(req: Request) {
             },
         })
 
-        return NextResponse.json({ url: session.url })
+        return NextResponse.json({ url: stripeSession.url })
     } catch (error) {
         console.error("[STRIPE_CHECKOUT]", error)
         return new NextResponse("Internal Error", { status: 500 })

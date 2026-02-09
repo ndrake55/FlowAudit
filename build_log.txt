@@ -1,0 +1,56 @@
+
+> flow-audit@0.1.0 build
+> next build
+
+   ▲ Next.js 15.2.9
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+ ⨯ ESLint: Cannot find module 'C:\Users\ndrak\Google Drive\01_AI_websites\FlowAudit\node_modules\eslint-config-next\core-web-vitals' imported from C:\Users\ndrak\Google Drive\01_AI_websites\FlowAudit\eslint.config.mjs Did you mean to import "eslint-config-next/core-web-vitals.js"?
+   Collecting page data ...
+   Generating static pages (0/8) ...
+   Generating static pages (2/8) 
+   Generating static pages (4/8) 
+   Generating static pages (6/8) 
+ ✓ Generating static pages (8/8)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ƒ /                                      206 B         153 kB
+├ ƒ /_not-found                            169 B         101 kB
+├ ƒ /api/auth/[...nextauth]                169 B         101 kB
+├ ƒ /api/create-checkout-session           169 B         101 kB
+├ ƒ /api/register                          169 B         101 kB
+├ ƒ /api/webhooks/stripe                   169 B         101 kB
+├ ƒ /dashboard                           3.06 kB         153 kB
+├ ƒ /dashboard/audit                       179 B         104 kB
+├ ƒ /dashboard/audit-report/[id]          146 kB         350 kB
+├ ƒ /dashboard/audit/[locationId]        26.4 kB         295 kB
+├ ƒ /dashboard/bills                     7.56 kB         178 kB
+├ ƒ /dashboard/bills/[id]                46.4 kB         165 kB
+├ ƒ /dashboard/invoices                    732 B         110 kB
+├ ƒ /dashboard/machines                    208 B         155 kB
+├ ƒ /dashboard/new-audit                 16.9 kB         184 kB
+├ ƒ /dashboard/settings                    169 B         101 kB
+├ ƒ /dashboard/subscription                169 B         101 kB
+├ ƒ /login                               3.93 kB         135 kB
+├ ƒ /pricing                             3.17 kB         153 kB
+├ ƒ /privacy-policy                        210 B         153 kB
+├ ƒ /register                            4.11 kB         135 kB
+├ ○ /robots.txt                            169 B         101 kB
+├ ○ /sitemap.xml                           169 B         101 kB
+└ ƒ /terms-of-use                          210 B         153 kB
++ First Load JS shared by all             101 kB
+  ├ chunks/1684-f1beea3a5d2bd7c8.js      45.9 kB
+  ├ chunks/4bd1b696-c18e44c5a0444532.js  53.3 kB
+  └ other shared chunks (total)           2.1 kB
+
+
+ƒ Middleware                             59.4 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

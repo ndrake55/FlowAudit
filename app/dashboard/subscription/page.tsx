@@ -1,19 +1,20 @@
 import { createCustomerPortalSession } from "@/app/actions/stripe";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { auth } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { CheckCircle2, XCircle } from "lucide-react";
 
 export default async function SubscriptionPage() {
-    const { userId } = await auth();
+    const session = await getServerSession(authOptions);
 
-    if (!userId) {
+    if (!session || !session.user || !session.user.id) {
         return <div>Please sign in</div>;
     }
 
     const dbUser = await prisma.user.findUnique({
-        where: { clerkUserId: userId },
+        where: { id: session.user.id },
     });
 
     const isSubscribed = dbUser?.stripeCustomerId && dbUser?.isSubscribed;

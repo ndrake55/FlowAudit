@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { CycleCountForm } from "@/components/audit/cycle-count-form";
 import { PaywallCard } from "@/components/audit/paywall-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,8 +29,8 @@ export default async function BillDetailsPage({ params }: BillDetailsPageProps) 
         notFound();
     }
 
-    const { userId } = await auth();
-    const user = userId ? await prisma.user.findUnique({ where: { clerkUserId: userId } }) : null;
+    const session = await getServerSession(authOptions);
+    const user = session?.user?.id ? await prisma.user.findUnique({ where: { id: session.user.id } }) : null;
 
     // Fetch machines for this location
     const machines = await prisma.machine.findMany({
