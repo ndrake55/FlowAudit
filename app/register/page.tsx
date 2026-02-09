@@ -19,7 +19,6 @@ export default function RegisterPage() {
         lastName: "",
         email: "",
         password: "",
-        companyName: "",
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,12 +91,7 @@ export default function RegisterPage() {
                             <Input id="password" name="password" type="password" required value={formData.password} onChange={handleChange} />
                         </div>
 
-                        <div className="pt-4 border-t">
-                            <div className="space-y-2">
-                                <Label htmlFor="companyName">Company / Laundromat Name</Label>
-                                <Input id="companyName" name="companyName" required value={formData.companyName} onChange={handleChange} placeholder="Speedy Wash LLC" />
-                            </div>
-                        </div>
+
 
                         <Button type="submit" className="w-full" disabled={isLoading}>
                             {isLoading ? "Creating Account..." : "Register"}

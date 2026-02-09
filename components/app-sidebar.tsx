@@ -37,11 +37,8 @@ const items = [
         url: "/dashboard/invoices",
         icon: CreditCard,
     },
-    {
-        title: "Settings",
-        url: "/dashboard/settings",
-        icon: Settings,
-    },
+    // Settings moved to footer
+
 ]
 
 export function AppSidebar() {
@@ -70,6 +67,16 @@ export function AppSidebar() {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter className="p-4">
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                            <a href="/dashboard/settings">
+                                <Settings />
+                                <span>Settings</span>
+                            </a>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
                 <UserAccountNav />
             </SidebarFooter>
         </Sidebar>

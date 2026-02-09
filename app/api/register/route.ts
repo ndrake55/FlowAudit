@@ -4,11 +4,14 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
     try {
-        const { firstName, lastName, email, password, companyName } = await req.json();
+        const { firstName, lastName, email, password } = await req.json();
 
-        if (!firstName || !lastName || !email || !password || !companyName) {
+        if (!firstName || !lastName || !email || !password) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
+
+        // Default Company Name since we removed it from the form
+        const companyName = `${firstName} ${lastName}'s Laundry`;
 
         // Check if user exists
         const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -45,7 +48,7 @@ export async function POST(req: Request) {
                 data: {
                     firstName,
                     lastName,
-                    name: `${firstName} ${lastName}`, // Keep name for NextAuth compatibility
+
                     email,
                     password: hashedPassword,
                     role: "ADMIN", // First user is Admin

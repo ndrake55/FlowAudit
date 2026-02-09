@@ -12,7 +12,7 @@ export default async function DashboardLayout({
     const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
 
     return (
-        <SidebarProvider defaultOpen={defaultOpen}>
+        <SidebarProvider defaultOpen={true}>
             <AppSidebar />
             <main className="w-full">
                 <div className="flex items-center gap-2 border-b p-4">
