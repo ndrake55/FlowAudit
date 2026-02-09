@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { createCustomerPortalSession } from "@/app/actions/stripe"
 import { redirect } from "next/navigation"
+import { ProfileForm } from "./profile-form"
 
 export default async function SettingsPage() {
     const session = await getServerSession(authOptions)
@@ -24,24 +25,25 @@ export default async function SettingsPage() {
     // Determine plan name (this is a simple check, could be more robust with a constants map)
     const planName = dbUser.isSubscribed ? "Pro Plan" : "Free Plan"
 
-
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 max-w-4xl">
             <div>
-                <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
+                <h2 className="text-3xl font-bold tracking-tight">User Settings</h2>
                 <p className="text-muted-foreground">
-                    Manage your account settings and subscription.
+                    Manage your account settings and profile information.
                 </p>
             </div>
 
-            <Card>
+            <ProfileForm user={dbUser} />
+
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <CardHeader>
                     <CardTitle>Subscription</CardTitle>
                     <CardDescription>
                         Manage your billing and subscription details.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent>
                     <div className="flex justify-between items-center rounded-lg border p-4">
                         <div className="space-y-0.5">
                             <label className="text-base font-medium">Current Plan</label>
@@ -61,7 +63,7 @@ export default async function SettingsPage() {
                         </form>
                     </div>
                 </CardContent>
-            </Card>
+            </div>
         </div>
     )
 }

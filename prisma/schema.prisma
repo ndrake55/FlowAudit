@@ -36,6 +36,13 @@ model User {
   password      String?
   role          String    @default("MEMBER")
 
+
+  phoneNumber   String?
+  jobTitle      String?
+  location      String?
+  bio           String?   @db.Text
+  website       String?
+
   accounts      Account[]
   sessions      Session[]
 

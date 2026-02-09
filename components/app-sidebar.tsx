@@ -23,7 +23,7 @@ import {
     SidebarHeader,
     SidebarFooter
 } from "@/components/ui/sidebar"
-import { UserAccountNav } from "./user-account-nav"
+import { SidebarUserFooter } from "./sidebar-user-footer"
 
 // Menu items.
 const items = [
@@ -67,17 +67,7 @@ export function AppSidebar() {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter className="p-4">
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                            <a href="/dashboard/settings">
-                                <Settings />
-                                <span>Settings</span>
-                            </a>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-                <UserAccountNav />
+                <SidebarUserFooter />
             </SidebarFooter>
         </Sidebar>
     )
