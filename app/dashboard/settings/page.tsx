@@ -62,11 +62,17 @@ export default async function SettingsPage() {
                                 </p>
                             )}
                         </div>
-                        <form action={createCustomerPortalSession}>
-                            <Button type="submit" variant="outline">
-                                Manage Subscription
+                        {dbUser.stripeCustomerId ? (
+                            <form action={createCustomerPortalSession}>
+                                <Button type="submit" variant="outline">
+                                    Manage Subscription
+                                </Button>
+                            </form>
+                        ) : (
+                            <Button asChild variant="default">
+                                <a href="/pricing">Upgrade Plan</a>
                             </Button>
-                        </form>
+                        )}
                     </div>
                 </CardContent>
             </div>

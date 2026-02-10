@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Check } from "lucide-react"
+import { createCheckoutSession } from "@/app/actions/stripe"
 
 interface PricingCardProps {
     title: string
@@ -30,26 +31,7 @@ export function PricingCard({
 
     const handleCheckout = async () => {
         try {
-            const response = await fetch("/api/create-checkout-session", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    priceId,
-                    mode,
-                }),
-            })
-
-            if (!response.ok) {
-                console.error("Failed to create checkout session")
-                return
-            }
-
-            const data = await response.json()
-            if (data.url) {
-                window.location.href = data.url
-            }
+            await createCheckoutSession(priceId, mode)
         } catch (error) {
             console.error("Error creating checkout session:", error)
         }

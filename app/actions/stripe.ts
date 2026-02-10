@@ -144,7 +144,8 @@ export async function createCustomerPortalSession() {
     })
 
     if (!dbUser || !dbUser.stripeCustomerId) {
-        throw new Error("User not found or no subscription")
+        // user has no history, redirect to pricing
+        redirect("/pricing")
     }
 
     const portalSession = await stripe.billingPortal.sessions.create({

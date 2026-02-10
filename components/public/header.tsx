@@ -22,6 +22,9 @@ export function PublicHeader() {
                         <Link className="text-sm font-medium hover:underline underline-offset-4 hidden sm:block" href="/#features">
                             Features
                         </Link>
+                        <Link className="text-sm font-medium hover:underline underline-offset-4 hidden sm:block" href="/pricing">
+                            Pricing
+                        </Link>
                         <Link className="text-sm font-medium hover:underline underline-offset-4 hidden sm:block" href="/#how-it-works">
                             How It Works
                         </Link>
