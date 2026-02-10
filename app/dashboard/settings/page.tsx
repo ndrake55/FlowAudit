@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { createCustomerPortalSession } from "@/app/actions/stripe"
 import { redirect } from "next/navigation"
 import { ProfileForm } from "./profile-form"
+import { DeleteAccountSection } from "./delete-account"
 
 export default async function SettingsPage() {
     const session = await getServerSession(authOptions)
@@ -36,6 +37,7 @@ export default async function SettingsPage() {
 
             <ProfileForm user={dbUser} />
 
+            {/* Subscription Section */}
             <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <CardHeader>
                     <CardTitle>Subscription</CardTitle>
@@ -64,6 +66,9 @@ export default async function SettingsPage() {
                     </div>
                 </CardContent>
             </div>
+
+            {/* Delete Account Section */}
+            <DeleteAccountSection />
         </div>
     )
 }
