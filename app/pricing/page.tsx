@@ -63,7 +63,7 @@ export default async function PricingPage() {
                         <PricingCard
                             title="Single Forensic Audit"
                             description="Perfect for vetting one specific laundromat listing."
-                            price="$499"
+                            price="$50"
                             priceSuffix=" / one-time"
                             features={[
                                 "Full Revenue Reconstruction Report",
@@ -79,7 +79,7 @@ export default async function PricingPage() {
                         <PricingCard
                             title="Active Searcher Plan"
                             description="For investors actively analyzing multiple deals."
-                            price="$199"
+                            price="$40"
                             priceSuffix=" / month"
                             features={[
                                 "<span class='font-semibold'>Unlimited</span> Forensic Audits",

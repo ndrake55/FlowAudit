@@ -18,6 +18,7 @@ export const ExtractionSchema = z.object({
     vendor_name: z.string().nullable().optional().describe("Name of the utility vendor"),
     document_type: z.enum(["BILL", "PNL", "UNKNOWN"]).describe("Type of document uploaded"),
     water_cost_amount: z.number().nullable().optional().describe("Total water/sewer line item cost if found on P&L"),
+    washer_income_amount: z.number().nullable().optional().describe("Specific line item for Washer/Laundry revenue (excluding Vending/Dryer if possible)"),
 });
 
 export type ExtractedData = z.infer<typeof ExtractionSchema>;
@@ -48,7 +49,10 @@ export async function processBill(fileBuffer: Buffer, mimeType: string = "applic
     [IF PNL]
     1. Scan for line items: "Water", "Water & Sewer", "Utilities - Water".
     2. Extract the dollar amount for that line item into 'water_cost_amount'.
-    3. Set raw_usage_value = 0 (since volume isn't usually on P&L).
+    3. Scan for line items: "Washer Income", "Laundry Revenue", "Machine Income", "Wash Revenue".
+       - If found, extract into 'washer_income_amount'.
+       - Try to exclude "Vending", "Dryer", or "Soap" income if listed separately.
+    4. Set raw_usage_value = 0 (since volume isn't usually on P&L).
 
     [COMMON]
     - Extract Vendor Name if visible (e.g. 'City of X Water').
@@ -65,7 +69,8 @@ export async function processBill(fileBuffer: Buffer, mimeType: string = "applic
       "warning_flag": "string",
       "vendor_name": "string",
       "document_type": "BILL" | "PNL",
-      "water_cost_amount": number
+      "water_cost_amount": number,
+      "washer_income_amount": number
     }`;
 
     const imagePart = {

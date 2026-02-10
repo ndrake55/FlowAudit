@@ -35,10 +35,14 @@ export default async function SettingsPage() {
                 </p>
             </div>
 
-            <ProfileForm user={dbUser} />
+            <ProfileForm user={{
+                name: dbUser.name,
+                email: dbUser.email,
+                phoneNumber: dbUser.phoneNumber
+            }} />
 
             {/* Subscription Section */}
-            <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm py-8">
                 <CardHeader>
                     <CardTitle>Subscription</CardTitle>
                     <CardDescription>

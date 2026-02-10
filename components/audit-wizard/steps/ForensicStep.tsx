@@ -153,6 +153,11 @@ export function ForensicStep({ dealName, address, onNext, onBack }: ForensicStep
                         setWaterCost(pnlDoc.water_cost_amount.toString());
                         toast.success(`AI Detected P&L: Water Cost $${pnlDoc.water_cost_amount}`);
 
+                        if (pnlDoc.washer_income_amount) {
+                            setStatedRevenue(pnlDoc.washer_income_amount.toString());
+                            toast.success(`AI Detected Washer Revenue: $${pnlDoc.washer_income_amount}`);
+                        }
+
                         // AUTO-FETCH RATES (Preserved from original)
                         if (address) {
                             const parts = address.description.split(",");
@@ -355,7 +360,7 @@ export function ForensicStep({ dealName, address, onNext, onBack }: ForensicStep
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="revenue">Stated Monthly Rev ($)</Label>
+                        <Label htmlFor="revenue">Stated Monthly Revenue (Washers Only)</Label>
                         <Input
                             id="revenue"
                             type="number"
