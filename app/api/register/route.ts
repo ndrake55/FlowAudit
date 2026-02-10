@@ -51,7 +51,8 @@ export async function POST(req: Request) {
 
                     email,
                     password: hashedPassword,
-                    role: "ADMIN", // First user is Admin
+                    password: hashedPassword,
+                    role: "MEMBER", // Default role
                     tenantId: tenant.id,
                 },
             });
