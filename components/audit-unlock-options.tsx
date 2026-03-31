@@ -18,7 +18,7 @@ export function AuditUnlockOptions({ auditReportId }: { auditReportId: string })
                 disabled={isPendingOneTime || isPendingSub}
             >
                 {isPendingOneTime ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Unlock This Report ($499)
+                Unlock This Report ($50)
             </Button>
 
             <div className="relative">
@@ -38,7 +38,7 @@ export function AuditUnlockOptions({ auditReportId }: { auditReportId: string })
                 disabled={isPendingOneTime || isPendingSub}
             >
                 {isPendingSub ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Subscribe & Unlock ($199/mo)
+                Subscribe & Unlock ($35/mo)
             </Button>
             <p className="text-xs text-slate-400 text-center">
                 Secure payment via Stripe. Cancel anytime.

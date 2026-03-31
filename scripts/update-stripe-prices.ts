@@ -26,9 +26,9 @@ async function main() {
         });
         console.log(`Created Single Audit Price: ${singlePrice.id}`);
 
-        // 2. Active Searcher Plan - $40.00 / Month
+        // 2. Active Searcher Plan - $35.00 / Month
         const monthlyPrice = await stripe.prices.create({
-            unit_amount: 4000, // $40.00
+            unit_amount: 3500, // $35.00
             currency: 'usd',
             recurring: {
                 interval: 'month',

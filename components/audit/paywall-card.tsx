@@ -48,14 +48,14 @@ export function PaywallCard({ auditId }: PaywallCardProps) {
                             <p className="font-medium leading-none">Single Report</p>
                             <p className="text-sm text-muted-foreground">One-time payment</p>
                         </div>
-                        <div className="font-bold text-xl">$499</div>
+                        <div className="font-bold text-xl">$50</div>
                     </div>
                     <div className="flex items-center justify-between p-4 border rounded-lg bg-primary/5 border-primary">
                         <div className="space-y-1">
                             <p className="font-medium leading-none text-primary">Pro Plan</p>
                             <p className="text-sm text-muted-foreground">Unlimited audits</p>
                         </div>
-                        <div className="font-bold text-xl text-primary">$199<span className="text-xs font-normal text-muted-foreground">/mo</span></div>
+                        <div className="font-bold text-xl text-primary">$35<span className="text-xs font-normal text-muted-foreground">/mo</span></div>
                     </div>
                 </div>
             </CardContent>
@@ -86,7 +86,7 @@ export function PaywallCard({ auditId }: PaywallCardProps) {
                     disabled={isPendingOneTime || isPendingSub || !auditId}
                 >
                     {isPendingOneTime ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    Pay $499 One-Time
+                    Pay $50 One-Time
                 </Button>
             </CardFooter>
         </Card>

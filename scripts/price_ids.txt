@@ -1,4 +1,4 @@
 
-single_deal: "price_1Sz6Qz5CEVgUcncUxuEbbLKM"
-searcher_plan: "price_1Sz6Qz5CEVgUcncUxfSXEcsK"
+single_deal: "price_1TH9NG5CEVgUcncUe2f9AkqS"
+searcher_plan: "price_1TH9NG5CEVgUcncUkuPgbK6b"
         

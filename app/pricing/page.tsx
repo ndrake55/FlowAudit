@@ -79,7 +79,7 @@ export default async function PricingPage() {
                         <PricingCard
                             title="Active Searcher Plan"
                             description="For investors actively analyzing multiple deals."
-                            price="$40"
+                            price="$35"
                             priceSuffix=" / month"
                             features={[
                                 "<span class='font-semibold'>Unlimited</span> Forensic Audits",
