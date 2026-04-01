@@ -4,6 +4,7 @@ import { Providers } from "./providers";
 
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next"
 
 
 
@@ -76,6 +77,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <Toaster />
+          <Analytics />
         </Providers>
       </body>
     </html>
