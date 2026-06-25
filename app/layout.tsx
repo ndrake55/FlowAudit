@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Figtree, DM_Sans, Roboto_Mono } from "next/font/google";
 import { Providers } from "./providers";
 
 import { Toaster } from "@/components/ui/sonner";
@@ -8,13 +8,18 @@ import { Analytics } from "@vercel/analytics/next"
 
 
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const figtree = Figtree({
+  variable: "--font-heading",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const dmSans = DM_Sans({
+  variable: "--font-sans-body",
+  subsets: ["latin"],
+});
+
+const robotoMono = Roboto_Mono({
+  variable: "--font-mono-code",
   subsets: ["latin"],
 });
 
@@ -72,7 +77,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${figtree.variable} ${dmSans.variable} ${robotoMono.variable} font-sans antialiased bg-background text-foreground`}
       >
         <Providers>
           {children}
